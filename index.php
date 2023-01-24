@@ -1,6 +1,7 @@
 <?php
-
+date_default_timezone_set("Asia/Tokyo");
 $comment_array = array();
+$error_messages = array();
 $pdo = null;
 $stmt = null;
 
@@ -11,11 +12,30 @@ $pdo = new PDO('mysql:host=localhost;dbname=bbs_yt',"root","root");
 echo $e->getMessage();
 }
 if(!empty ($_POST["submitButton"])){
-    $postDate = date("Y-m-d H:i:s");
-$stmt-> $pdo->prepare("INSERT INTO `bbs-table`(`username`,`comment`,`postDate`)VALUES(:username,:comment,:postDate);");
-$stmt-> $bindParam(':name',$name);
-$stmt-> $bindParam(':value',$value);
+    //名前のチェック
+    if(empty ($_POST["username"])){
+        echo "名前を入力してください";
+        $error_messages["username"] = "名前を入力してください";
+    }
+    //コメントのチェック
+    if(empty ($_POST["comment"])){
+        echo "コメントを入力してください";
+        $error_messages["comment"] = "コメントを入力してください";
+    }
 
+    if(empty($error_messages)){
+    $postDate = date("Y-m-d H:i:s");
+    try{
+    $stmt-> $pdo->prepare("INSERT INTO `bbs-table`(`username`,`comment`,`postDate`)VALUES(:username,:comment,:postDate)");
+    $stmt-> $bindParam(':username',$_POST['username'],PDO::PARAM_STR);
+    $stmt-> $bindParam(':comment',$_POST["comment"],PDO::PARAM_STR);
+    $stmt-> $bindParam(':postDate',$postDate,PDO::PARAM_STR);
+
+    $stmt-> execute();
+    } catch (PDOException $e) {
+    echo $e->getMessage();
+    }
+  }
 }
 //DBからコメントデータを取得する
 $sql="SELECT `id`, `username`, `comment`, `postDate` FROM `bbs_table`;";
