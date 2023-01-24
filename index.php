@@ -1,10 +1,23 @@
 <?php
+
+$comment_array = array();
+
 if(!empty ($_POST["submitButton"])){
 echo $_POST["username"];
 echo $_POST["comment"];
 }
 //DB接続
-$pdo = new PDO('mysql:host=localhost;dbname=test',$user,$pass);
+try{
+$pdo = new PDO('mysql:host=localhost;dbname=bbs_yt',"root","root");
+}catch(PDOException $e){
+echo $e->getMessage();
+}
+//DBからコメントデータを取得する
+$sql="SELECT `id`, `username`, `comment`, `postDate` FROM `bbs_table`;";
+$comment_array = $pdo->query($sql);
+//DB接続を閉じる
+$pdo=null;
+
 ?>
 
 <!DOCTYPE html>
@@ -19,7 +32,7 @@ $pdo = new PDO('mysql:host=localhost;dbname=test',$user,$pass);
 </head>
 
 <body>
-<h1 class="title">PHPで掲示板アプリ</h1>
+<h1 class="title">PHP掲示板アプリ</h1>
 <hr>
 <div class="boardWrapper">
   <section>
